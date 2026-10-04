@@ -62,12 +62,35 @@ const upload = multer({
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+const sessionCookieOptions = {
+  httpOnly: true,
+  sameSite: "lax",
+  secure: false,
+  maxAge: 7 * 24 * 60 * 60 * 1000
+};
+
 app.use(session({
   secret: process.env.SESSION_SECRET || "change-this-secret",
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, sameSite: "lax", secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 }
+  cookie: sessionCookieOptions
 }));
+
+// Prevent authenticated pages/API responses from being restored from the browser cache
+// after the user logs out.
+app.use((req, res, next) => {
+  if (req.path === "/home.html" || req.path === "/founders.html" ||
+      req.path === "/achievements.html" || req.path === "/platforms.html" ||
+      req.path === "/designer.html" || req.path === "/logs.html" ||
+      req.path.startsWith("/api/")) {
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
+  }
+  next();
+});
+
 app.use(express.static(path.join(ROOT, "public")));
 app.use("/uploads", express.static(uploadDir));
 
@@ -153,17 +176,35 @@ app.get("/auth/discord/callback", async (req, res) => {
   }
 });
 
-app.get("/auth/logout", (req, res) => {
+function logoutUser(req, res, wantsJson = false) {
   const user = userFromSession(req);
   if (user) logAction(user, "تسجيل خروج");
-  req.session.destroy(() => res.redirect("/"));
-});
 
-app.post("/auth/logout", (req, res) => {
-  const user = userFromSession(req);
-  if (user) logAction(user, "تسجيل خروج");
-  req.session.destroy(() => res.redirect("/"));
-});
+  // Destroy the server-side session first, then remove the browser cookie.
+  req.session.destroy((err) => {
+    res.clearCookie("connect.sid", {
+      httpOnly: sessionCookieOptions.httpOnly,
+      sameSite: sessionCookieOptions.sameSite,
+      secure: sessionCookieOptions.secure,
+      path: "/"
+    });
+
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
+
+    if (wantsJson) {
+      if (err) return res.status(500).json({ ok: false, error: "تعذر تسجيل الخروج." });
+      return res.json({ ok: true });
+    }
+
+    if (err) return res.redirect("/?error=logout_failed");
+    return res.redirect("/");
+  });
+}
+
+app.get("/auth/logout", (req, res) => logoutUser(req, res, false));
+app.post("/auth/logout", (req, res) => logoutUser(req, res, true));
 
 app.get("/api/me", (req, res) => {
   const user = userFromSession(req);

@@ -67,6 +67,23 @@ button,input,textarea{font:inherit}
   box-shadow:0 0 25px rgba(213,173,98,.12);
 }
 .server-brand strong{font-size:15px}
+.logout-btn .logout-icon{
+  width:18px;
+  height:18px;
+  flex:none;
+  vertical-align:middle;
+}
+.logout-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+}
+.logout-btn:disabled{
+  opacity:.65;
+  cursor:wait;
+  transform:none!important;
+}
 .menu-btn,.logout-btn,.home-btn{
   border:1px solid var(--line);
   background:rgba(255,255,255,.035);

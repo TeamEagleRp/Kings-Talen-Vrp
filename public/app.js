@@ -24,14 +24,47 @@ async function setupHeader() {
       ? `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=128`
       : "/assets/1.webp";
   }
-  if (name) name.textContent = u.displayName;
+  if (name) name.textContent = u.global_name || u.username || "Discord User";
   if (username) username.textContent = "@" + u.username;
 
   const adminLinks = document.querySelectorAll("[data-admin-only]");
   adminLinks.forEach(el => el.style.display = u.isAdmin ? "" : "none");
 
   const logout = document.querySelector("#logout-btn");
-  if (logout) logout.style.display = "";
+  if (logout) {
+    logout.style.display = "";
+    logout.disabled = false;
+
+    // Use POST so logout is an explicit state-changing action.
+    logout.addEventListener("click", async () => {
+      if (logout.dataset.loggingOut === "1") return;
+
+      logout.dataset.loggingOut = "1";
+      logout.disabled = true;
+      logout.setAttribute("aria-busy", "true");
+
+      try {
+        const response = await fetch("/auth/logout", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Accept": "application/json" },
+          cache: "no-store"
+        });
+
+        if (!response.ok) throw new Error("Logout failed");
+
+        // Replace the current history entry so Back does not return to the
+        // authenticated page.
+        window.location.replace("/");
+      } catch (error) {
+        console.error("Logout error:", error);
+        logout.disabled = false;
+        logout.dataset.loggingOut = "0";
+        logout.removeAttribute("aria-busy");
+        alert("تعذر تسجيل الخروج. حاول مرة أخرى.");
+      }
+    });
+  }
 
   const serverName = document.querySelector("#server-name");
   const serverLogo = document.querySelector("#server-logo");
