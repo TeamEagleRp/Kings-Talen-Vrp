@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kings Talen vRp</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="account">
+    <button class="logout-btn" id="logout-btn" style="display:none" onclick="location.href='/auth/logout'">تسجيل الخروج</button>
+    <img id="account-avatar" src="/assets/1.webp" alt="صورة حساب Discord">
+    <div class="account-info">
+      <strong id="account-name">...</strong>
+      <span id="account-username">@...</span>
+    </div>
+    <button class="home-btn" id="home-btn">العودة للرئيسية</button>
+  </div>
+
+  <button class="menu-btn" id="menu-btn"><svg class="icon" viewBox="0 0 24 24"><path fill="currentColor" d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z"/></svg> <span>القائمة</span></button>
+
+  <div class="server-brand">
+    <strong id="server-name">－𝗞𝗶𝗻𝗚s 𝗧𝗮𝗟𝗲𝗻 𝘃𝗥𝗽</strong>
+    <img id="server-logo" src="/assets/1.webp" alt="شعار السيرفر">
+  </div>
+</header>
+
+<aside class="drawer" id="drawer">
+  <h3>قائمة Kings Talen</h3>
+  <a href="/home.html">الرئيسية</a>
+  <a href="/founders.html">مؤسسون الملوك</a>
+  <a href="/achievements.html">إنجازات الملوك</a>
+  <a href="/platforms.html">منصات الخادم</a>
+  <a href="/designer.html">مصمم التطبيق</a>
+  <a href="/logs.html" data-admin-only style="display:none">السجل الإداري</a>
+</aside>
+
+<main class="container">
+  <h1 class="page-title">السجل الإداري</h1>
+  <section class="card">
+    <div id="logs"></div>
+  </section>
+</main>
+<script src="/app.js"></script>
+<script>
+async function loadLogs() {
+  try {
+    const me = await setupHeader();
+    if (!me?.user?.isAdmin) {
+      location.href = "/home.html";
+      return;
+    }
+
+    const logs = await getJSON("/api/logs");
+    document.querySelector("#logs").innerHTML = logs.length
+      ? logs.map(log => `
+        <div class="log-row">
+          <strong>${escapeHtml(log.action)}</strong>
+          <div>${escapeHtml(log.details || "")}</div>
+          <div class="muted">${escapeHtml(log.username)} — ${new Date(log.at).toLocaleString("ar")}</div>
+        </div>
+      `).join("")
+      : "لا توجد سجلات بعد.";
+  } catch {
+    location.href = "/home.html";
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
+  }[c]));
+}
+
+document.addEventListener("DOMContentLoaded", loadLogs);
+</script>

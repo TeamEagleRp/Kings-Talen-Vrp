@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kings Talen vRp</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="account">
+    <button class="logout-btn" id="logout-btn" style="display:none" onclick="location.href='/auth/logout'">تسجيل الخروج</button>
+    <img id="account-avatar" src="/assets/1.webp" alt="صورة حساب Discord">
+    <div class="account-info">
+      <strong id="account-name">...</strong>
+      <span id="account-username">@...</span>
+    </div>
+    <button class="home-btn" id="home-btn">العودة للرئيسية</button>
+  </div>
+
+  <button class="menu-btn" id="menu-btn"><svg class="icon" viewBox="0 0 24 24"><path fill="currentColor" d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z"/></svg> <span>القائمة</span></button>
+
+  <div class="server-brand">
+    <strong id="server-name">－𝗞𝗶𝗻𝗚s 𝗧𝗮𝗟𝗲𝗻 𝘃𝗥𝗽</strong>
+    <img id="server-logo" src="/assets/1.webp" alt="شعار السيرفر">
+  </div>
+</header>
+
+<aside class="drawer" id="drawer">
+  <h3>قائمة Kings Talen</h3>
+  <a href="/home.html">الرئيسية</a>
+  <a href="/founders.html">مؤسسون الملوك</a>
+  <a href="/achievements.html">إنجازات الملوك</a>
+  <a href="/platforms.html">منصات الخادم</a>
+  <a href="/designer.html">مصمم التطبيق</a>
+  <a href="/logs.html" data-admin-only style="display:none">السجل الإداري</a>
+</aside>
+
+<main class="container">
+  <h1 class="page-title">إنجازات الملوك</h1>
+
+  <section class="card admin-box" data-admin-only style="display:none">
+    <h2>إضافة إنجاز</h2>
+    <form id="achievement-form" enctype="multipart/form-data">
+      <div class="form-grid">
+        <div>
+          <label>اسم الإنجاز</label>
+          <input name="name" required>
+        </div>
+        <div>
+          <label>تاريخ الإنجاز — اختياري</label>
+          <input type="date" name="date">
+        </div>
+        <div class="full">
+          <label>وصف الإنجاز</label>
+          <textarea name="description" required></textarea>
+        </div>
+        <div class="full">
+          <label>صورة الإنجاز — اختياري</label>
+          <input type="file" name="image" accept="image/*">
+        </div>
+      </div>
+      <div class="admin-actions">
+        <button class="gold-btn" type="submit">إضافة الإنجاز</button>
+      </div>
+    </form>
+  </section>
+
+  <div id="achievement-list" class="achievement-list" style="margin-top:28px"></div>
+</main>
+
+<script src="/app.js"></script>
+<script>
+async function loadAchievements() {
+  const list = document.querySelector("#achievement-list");
+  const data = await getJSON("/api/achievements");
+
+  if (!data.length) {
+    list.innerHTML = '<section class="card" style="text-align:center">لا توجد إنجازات مضافة حتى الآن.</section>';
+    return;
+  }
+
+  list.innerHTML = data.map(a => `
+    <article class="card achievement">
+      ${a.image ? `<img class="achievement-image" src="${a.image}" alt="">` : ""}
+      <div class="achievement-body">
+        <h2>${escapeHtml(a.name)}</h2>
+        ${a.date ? `<p class="muted">التاريخ: ${escapeHtml(a.date)}</p>` : ""}
+        <p>${escapeHtml(a.description)}</p>
+        ${window.currentIsAdmin ? `<button class="delete-btn" onclick="deleteAchievement('${a.id}')">حذف الإنجاز</button>` : ""}
+      </div>
+    </article>
+  `).join("");
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
+  }[c]));
+}
+
+async function deleteAchievement(id) {
+  if (!confirm("هل تريد حذف هذا الإنجاز؟")) return;
+  await getJSON("/api/achievements/" + id, { method: "DELETE" });
+  loadAchievements();
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const me = await setupHeader();
+  window.currentIsAdmin = Boolean(me?.user?.isAdmin);
+  document.querySelectorAll("[data-admin-only]").forEach(x => {
+    x.style.display = window.currentIsAdmin ? "" : "none";
+  });
+
+  const form = document.querySelector("#achievement-form");
+  if (form) {
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      const response = await fetch("/api/achievements", {
+        method: "POST",
+        body: new FormData(form)
+      });
+      if (!response.ok) return alert("تعذر إضافة الإنجاز.");
+      form.reset();
+      loadAchievements();
+    });
+  }
+
+  loadAchievements();
+});
+</script>

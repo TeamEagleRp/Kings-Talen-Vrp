@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kings Talen vRp</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="account">
+    <button class="logout-btn" id="logout-btn" style="display:none" onclick="location.href='/auth/logout'">تسجيل الخروج</button>
+    <img id="account-avatar" src="/assets/1.webp" alt="صورة حساب Discord">
+    <div class="account-info">
+      <strong id="account-name">...</strong>
+      <span id="account-username">@...</span>
+    </div>
+    <button class="home-btn" id="home-btn">العودة للرئيسية</button>
+  </div>
+
+  <button class="menu-btn" id="menu-btn"><svg class="icon" viewBox="0 0 24 24"><path fill="currentColor" d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z"/></svg> <span>القائمة</span></button>
+
+  <div class="server-brand">
+    <strong id="server-name">－𝗞𝗶𝗻𝗚s 𝗧𝗮𝗟𝗲𝗻 𝘃𝗥𝗽</strong>
+    <img id="server-logo" src="/assets/1.webp" alt="شعار السيرفر">
+  </div>
+</header>
+
+<aside class="drawer" id="drawer">
+  <h3>قائمة Kings Talen</h3>
+  <a href="/home.html">الرئيسية</a>
+  <a href="/founders.html">مؤسسون الملوك</a>
+  <a href="/achievements.html">إنجازات الملوك</a>
+  <a href="/platforms.html">منصات الخادم</a>
+  <a href="/designer.html">مصمم التطبيق</a>
+  <a href="/logs.html" data-admin-only style="display:none">السجل الإداري</a>
+</aside>
+
+<main class="container">
+  <h1 class="page-title">مؤسسون الملوك</h1>
+  <div class="grid">
+    <article class="card profile-card">
+      <img src="/assets/3.webp" alt="">
+      <h2>نــعــمــل لا آجــلــكــم</h2>
+      <div class="muted">Discord: 6fir</div>
+    </article>
+    <article class="card profile-card">
+      <img src="/assets/4.webp" alt="">
+      <h2>الـشـلاقـي#</h2>
+      <div class="muted">Discord: .f.1.6.</div>
+    </article>
+  </div>
+</main>
+<script src="/app.js"></script>
