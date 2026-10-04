@@ -8,6 +8,6 @@ document.addEventListener("DOMContentLoaded",async()=>{
       tr.innerHTML=`<td>${new Date(l.created_at+"Z").toLocaleString("ar")}</td><td>${escapeHtml(l.username)}</td><td>${escapeHtml(l.action)}</td><td>${escapeHtml(l.details||"-")}</td>`;
       body.appendChild(tr);
     });
-  }catch(e){location.href="/home.html";}
+  }catch(e){location.href="/home";}
 });
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}

@@ -2,7 +2,7 @@
   "name": "kings-talen-vrp",
   "version": "1.0.0",
   "description": "Kings Talen vRp Discord OAuth website",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node index.js"
   },

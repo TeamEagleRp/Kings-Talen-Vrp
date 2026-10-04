@@ -1,32 +1,8 @@
 {
   "nextAchievementId": 4,
-  "nextLogId": 25,
+  "nextLogId": 22,
   "achievements": [],
   "logs": [
-    {
-      "id": 24,
-      "user_id": "1443579668195315844",
-      "username": "𝑴𝑮〢𝓜𝓱𝓶𝓪𝓭 89",
-      "action": "تسجيل دخول",
-      "details": "Discord OAuth2",
-      "created_at": "2026-10-04T07:20:00.736Z"
-    },
-    {
-      "id": 23,
-      "user_id": "1443579668195315844",
-      "username": "𝑴𝑮〢𝓜𝓱𝓶𝓪𝓭 89",
-      "action": "تسجيل دخول",
-      "details": "Discord OAuth2",
-      "created_at": "2026-10-04T07:17:36.691Z"
-    },
-    {
-      "id": 22,
-      "user_id": "1443579668195315844",
-      "username": "𝑴𝑮〢𝓜𝓱𝓶𝓪𝓭 89",
-      "action": "تسجيل خروج",
-      "details": "",
-      "created_at": "2026-10-04T07:17:31.185Z"
-    },
     {
       "id": 21,
       "user_id": "1443579668195315844",

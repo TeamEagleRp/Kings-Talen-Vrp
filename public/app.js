@@ -8,8 +8,8 @@ async function setupHeader() {
   const data = await getJSON("/api/me");
 
   if (!data.authenticated) {
-    if (!location.pathname.endsWith("/index.html") && location.pathname !== "/") {
-      location.href = "/index.html";
+    if (!location.pathname.endsWith("/") && location.pathname !== "/") {
+      location.href = "/";
     }
     return null;
   }
@@ -89,7 +89,7 @@ function setupMenu() {
 
 function setupBackButton() {
   const btn = document.querySelector("#home-btn");
-  if (btn) btn.addEventListener("click", () => location.href = "/home.html");
+  if (btn) btn.addEventListener("click", () => location.href = "/home");
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

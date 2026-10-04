@@ -80,9 +80,9 @@ app.use(session({
 // Prevent authenticated pages/API responses from being restored from the browser cache
 // after the user logs out.
 app.use((req, res, next) => {
-  if (req.path === "/home.html" || req.path === "/founders.html" ||
-      req.path === "/achievements.html" || req.path === "/platforms.html" ||
-      req.path === "/designer.html" || req.path === "/logs.html" ||
+  if (["/home", "/founders", "/achievements", "/platforms", "/designer", "/logs",
+      "/home.html", "/founders.html", "/achievements.html", "/platforms.html",
+      "/designer.html", "/logs.html"].includes(req.path) ||
       req.path.startsWith("/api/")) {
     res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     res.set("Pragma", "no-cache");
@@ -90,6 +90,40 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// Clean, Render-friendly page URLs (no .html in the browser address bar).
+const pageRoutes = {
+  "/": "index.html",
+  "/home": "home.html",
+  "/founders": "founders.html",
+  "/achievements": "achievements.html",
+  "/platforms": "platforms.html",
+  "/designer": "designer.html",
+  "/logs": "logs.html"
+};
+
+// Redirect old .html URLs to the clean URLs so old bookmarks never expose .html.
+const legacyRoutes = {
+  "/index.html": "/",
+  "/home.html": "/home",
+  "/founders.html": "/founders",
+  "/achievements.html": "/achievements",
+  "/platforms.html": "/platforms",
+  "/designer.html": "/designer",
+  "/logs.html": "/logs"
+};
+for (const [legacy, clean] of Object.entries(legacyRoutes)) {
+  app.get(legacy, (req, res) => res.redirect(301, clean));
+}
+
+for (const [route, file] of Object.entries(pageRoutes)) {
+  app.get(route, (req, res) => {
+    const isProtected = route !== "/";
+    if (isProtected && !userFromSession(req)) return res.redirect("/");
+    if (route === "/logs" && !ADMIN_IDS.has(req.session.user.id)) return res.redirect("/home");
+    res.sendFile(path.join(ROOT, "public", file));
+  });
+}
 
 app.use(express.static(path.join(ROOT, "public")));
 app.use("/uploads", express.static(uploadDir));
@@ -169,7 +203,7 @@ app.get("/auth/discord/callback", async (req, res) => {
 
     req.session.user = user;
     logAction(user, "تسجيل دخول", "Discord OAuth2");
-    res.redirect("/home.html");
+    res.redirect("/home");
   } catch (err) {
     console.error("Discord OAuth error:", err.message);
     res.redirect("/?error=oauth_failed");
